@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How data travels from applications to the network, explained layer by layer.">
+    <title>Understanding the TCP/IP Stack - Technical Notes</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="../copy.js" defer></script>
+</head>
+
+<body>
+    <nav>
+        <a href="../index.html" class="site-title">Technical Notes</a>
+        <a href="../index.html">Articles</a>
+        <a href="../about.html">About</a>
+        <a href="https://github.com/SARPAT">GitHub</a>
+        <a href="https://x.com/SARAPATEL21">Twitter</a>
+    </nav>
+
+    <main>
+        <a href="../index.html" class="back-link">Back to articles</a>
+
+        <article>
+            <header class="article-header">
+                <h1>Understanding the TCP/IP Stack</h1>
+                <p class="article-meta">January 8, 2026</p>
+            </header>
+
+            <div class="article-content">
+                <p>When you make an HTTP request, your data passes through several layers before reaching the network.
+                    Each layer adds information, handles specific responsibilities, and passes data to the next.
+                    Understanding this process helps when debugging network issues or designing distributed systems.</p>
+
+                <h2>The Four Layers</h2>
+
+                <p>The TCP/IP model consists of four layers, from top to bottom:</p>
+
+                <ol>
+                    <li><strong>Application layer</strong> - HTTP, DNS, SMTP, SSH</li>
+                    <li><strong>Transport layer</strong> - TCP, UDP</li>
+                    <li><strong>Internet layer</strong> - IP, ICMP</li>
+                    <li><strong>Link layer</strong> - Ethernet, Wi-Fi</li>
+                </ol>
+
+                <p>Data moves down through these layers when sending, with each layer wrapping the data in a header. On
+                    the receiving end, data moves up through the layers, with each header being stripped off.</p>
+
+                <h2>Application Layer</h2>
+
+                <p>This is where your application code operates. When you call a function to send an HTTP request, you
+                    are working at the application layer. The data is still in its original form: text, JSON, or binary
+                    content.</p>
+
+                <p>Protocols at this layer define the format of messages. HTTP specifies request methods, headers, and
+                    response codes. DNS defines the format for domain name queries and responses.</p>
+
+                <h2>Transport Layer</h2>
+
+                <p>The transport layer handles end-to-end communication between processes. TCP provides reliable,
+                    ordered delivery through acknowledgments and retransmissions. UDP provides fast, unordered delivery
+                    without guarantees.</p>
+
+                <p>TCP adds a header containing source and destination ports, sequence numbers, and flags:</p>
+
+                <pre><code>Source Port: 52431
+Destination Port: 443
+Sequence Number: 1823746
+Acknowledgment Number: 9182736
+Flags: ACK, PSH
+Window Size: 65535
+Checksum: 0x3f2a</code></pre>
+
+                <p>Ports identify specific applications. Your web browser might use port 52431, while the server listens
+                    on port 443 for HTTPS.</p>
+
+                <h2>Internet Layer</h2>
+
+                <p>The Internet layer handles routing packets across networks. IP addresses identify hosts, and routers
+                    use these addresses to forward packets toward their destination.</p>
+
+                <p>The IP header includes source and destination addresses, along with metadata:</p>
+
+                <pre><code>Version: 4
+Header Length: 20 bytes
+Total Length: 1500 bytes
+TTL: 64
+Protocol: TCP (6)
+Source: 192.168.1.100
+Destination: 93.184.216.34</code></pre>
+
+                <p>The TTL (Time to Live) field prevents packets from circulating forever. Each router decrements this
+                    value, and the packet is discarded when it reaches zero.</p>
+
+                <h2>Link Layer</h2>
+
+                <p>The link layer handles communication over physical media. Ethernet frames include MAC addresses that
+                    identify devices on the local network:</p>
+
+                <pre><code>Destination MAC: 00:1a:2b:3c:4d:5e
+Source MAC: 00:5e:4d:3c:2b:1a
+EtherType: 0x0800 (IPv4)
+Payload: [IP packet]
+FCS: 0x12345678</code></pre>
+
+                <p>MAC addresses only matter for the next hop. When a packet crosses a router, the link layer header is
+                    stripped and a new one is added with different MAC addresses.</p>
+
+                <h2>Putting It Together</h2>
+
+                <p>When you load a webpage, the following happens in sequence:</p>
+
+                <ol>
+                    <li>Your browser constructs an HTTP GET request</li>
+                    <li>TCP segments the request, adds port numbers and sequence data</li>
+                    <li>IP adds source and destination addresses</li>
+                    <li>Ethernet adds MAC addresses for the next hop (your router)</li>
+                    <li>The frame is transmitted as electrical signals or radio waves</li>
+                </ol>
+
+                <p>Each router along the path repeats steps 4-5 with updated link layer addresses until the packet
+                    reaches the destination. The server then processes the layers in reverse order, extracting the HTTP
+                    request from the innermost layer.</p>
+
+                <h2>Debugging Tools</h2>
+
+                <p>Several tools help inspect traffic at different layers:</p>
+
+                <ul>
+                    <li><code>tcpdump</code> - captures packets at the link layer</li>
+                    <li><code>wireshark</code> - graphical packet analyzer with protocol decoding</li>
+                    <li><code>netstat</code> or <code>ss</code> - shows connection states and ports</li>
+                    <li><code>traceroute</code> - reveals the path packets take through routers</li>
+                </ul>
+
+                <p>Understanding how data flows through these layers makes it clearer where to look when something goes
+                    wrong.</p>
+            </div>
+        </article>
+    </main>
+
+    <footer>
+    </footer>
+</body>
+
+</html>

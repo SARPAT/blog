@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Practical advice on writing technical documentation that readers can actually use.">
+    <title>Writing Clean Technical Documentation - Technical Notes</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="../copy.js" defer></script>
+</head>
+
+<body>
+    <nav>
+        <a href="../index.html" class="site-title">Technical Notes</a>
+        <a href="../index.html">Articles</a>
+        <a href="../about.html">About</a>
+        <a href="https://github.com/SARPAT">GitHub</a>
+        <a href="https://x.com/SARAPATEL21">Twitter</a>
+    </nav>
+
+    <main>
+        <a href="../index.html" class="back-link">Back to articles</a>
+
+        <article>
+            <header class="article-header">
+                <h1>Writing Clean Technical Documentation</h1>
+                <p class="article-meta">January 15, 2026</p>
+            </header>
+
+            <div class="article-content">
+                <p>Good documentation is written for the reader, not the writer. This sounds obvious, but most poor
+                    documentation fails because the author wrote what they wanted to say rather than what the reader
+                    needs to know.</p>
+
+                <p>This article covers practical approaches to structure, clarity, and long-term maintenance of
+                    technical documents.</p>
+
+                <h2>Know Your Audience</h2>
+
+                <p>Before writing anything, answer these questions:</p>
+
+                <ul>
+                    <li>Who is the reader? A new user, an experienced developer, an operator?</li>
+                    <li>What are they trying to accomplish?</li>
+                    <li>What do they already know?</li>
+                    <li>What can you assume they do not know?</li>
+                </ul>
+
+                <p>Documentation for an API reference differs from a getting-started guide. A reference must be complete
+                    and precise. A guide should be short and lead the reader to success quickly. Mixing these purposes
+                    creates documents that fail at both.</p>
+
+                <h2>Structure for Scanning</h2>
+
+                <p>Readers rarely read documentation linearly. They scan for the section relevant to their problem. Help
+                    them by:</p>
+
+                <ul>
+                    <li>Using descriptive headings that state what the section covers</li>
+                    <li>Putting the most important information first</li>
+                    <li>Breaking content into short paragraphs</li>
+                    <li>Using lists for steps, options, or requirements</li>
+                </ul>
+
+                <p>Compare these two headings:</p>
+
+                <blockquote>
+                    <p><strong>Bad:</strong> "Installation"</p>
+                    <p><strong>Better:</strong> "Installing on Ubuntu 22.04"</p>
+                </blockquote>
+
+                <p>The specific heading tells readers immediately whether this section applies to them.</p>
+
+                <h2>Clarity Over Everything</h2>
+
+                <p>Ambiguity is the enemy of useful documentation. Avoid words like "simply", "just", or "obviously",
+                    which dismiss complexity and frustrate readers who are stuck.</p>
+
+                <p>Be specific about versions, paths, and requirements:</p>
+
+                <blockquote>
+                    <p><strong>Bad:</strong> "Install a recent version of Python."</p>
+                    <p><strong>Better:</strong> "Requires Python 3.9 or later."</p>
+                </blockquote>
+
+                <p>Use the same term consistently. If you call something a "cluster" in one section, do not switch to
+                    "fleet" or "group" elsewhere.</p>
+
+                <h2>Show Working Examples</h2>
+
+                <p>Examples are often more useful than explanations. Show complete, working code that readers can copy
+                    and run:</p>
+
+                <pre><code>curl -X POST https://api.example.com/v1/users \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{"name": "Alice", "email": "alice@example.com"}'</code></pre>
+
+                <p>Include the expected output when it helps understanding:</p>
+
+                <pre><code>{
+    "id": "usr_1234",
+    "name": "Alice",
+    "email": "alice@example.com",
+    "created_at": "2026-01-15T10:30:00Z"
+}</code></pre>
+
+                <p>Avoid placeholder values that do not work. Real examples are better than abstract ones.</p>
+
+                <h2>Keep Documentation Close to Code</h2>
+
+                <p>Documentation that lives separately from code becomes outdated faster. Consider:</p>
+
+                <ul>
+                    <li>README files in each package or component</li>
+                    <li>Inline comments for complex logic</li>
+                    <li>Doc comments that generate API references</li>
+                    <li>Runnable tests that serve as examples</li>
+                </ul>
+
+                <p>When documentation is in the same repository as code, it can be reviewed alongside code changes. This
+                    keeps both in sync.</p>
+
+                <h2>Maintenance</h2>
+
+                <p>Outdated documentation is often worse than no documentation. It leads readers to try things that no
+                    longer work, wasting their time and building distrust.</p>
+
+                <p>Schedule regular reviews. When features change, update the documentation in the same pull request.
+                    Treat documentation bugs as seriously as code bugs.</p>
+
+                <p>Delete documentation for features that no longer exist. Keeping it around "just in case" only creates
+                    confusion.</p>
+
+                <h2>A Checklist</h2>
+
+                <p>Before publishing, verify:</p>
+
+                <ul>
+                    <li>All commands and code examples work as shown</li>
+                    <li>Prerequisites are listed explicitly</li>
+                    <li>Version numbers match current releases</li>
+                    <li>Headings describe content accurately</li>
+                    <li>Links point to valid destinations</li>
+                    <li>Someone unfamiliar with the project can follow the guide</li>
+                </ul>
+
+                <p>Good documentation takes effort, but the time invested pays back every time a reader solves their
+                    problem without asking for help.</p>
+            </div>
+        </article>
+    </main>
+
+    <footer>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Setting up a development environment for Linux kernel work and creating your first kernel module.">
+    <title>Getting Started with Linux Kernel Development - Technical Notes</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="../copy.js" defer></script>
+</head>
+
+<body>
+    <nav>
+        <a href="../index.html" class="site-title">Technical Notes</a>
+        <a href="../index.html">Articles</a>
+        <a href="../about.html">About</a>
+        <a href="https://github.com/SARPAT">GitHub</a>
+        <a href="https://x.com/SARAPATEL21">Twitter</a>
+    </nav>
+
+    <main>
+        <a href="../index.html" class="back-link">Back to articles</a>
+
+        <article>
+            <header class="article-header">
+                <h1>Getting Started with Linux Kernel Development</h1>
+                <p class="article-meta">December 28, 2025</p>
+            </header>
+
+            <div class="article-content">
+                <p>Kernel development has a reputation for being difficult to approach. The codebase is large, the
+                    tooling is different from userspace work, and mistakes can crash your machine. However, getting
+                    started is more straightforward than it appears once you have the right setup.</p>
+
+                <p>This article covers the initial steps: setting up a development environment, building the kernel, and
+                    writing a basic module.</p>
+
+                <h2>Prerequisites</h2>
+
+                <p>Before starting, you should be comfortable with C programming and have basic familiarity with Linux
+                    system administration. You will need a machine or virtual machine running a recent Linux
+                    distribution. Using a VM is recommended for initial work since kernel bugs can require a reboot.</p>
+
+                <p>Install the required packages on Debian-based systems:</p>
+
+                <pre><code>sudo apt install build-essential libncurses-dev bison flex libssl-dev libelf-dev</code></pre>
+
+                <p>On Fedora or RHEL-based systems:</p>
+
+                <pre><code>sudo dnf install gcc make ncurses-devel bison flex elfutils-libelf-devel openssl-devel</code></pre>
+
+                <h2>Getting the Source</h2>
+
+                <p>Clone the mainline kernel repository. This takes time and disk space, around 3-4 GB:</p>
+
+                <pre><code>git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+cd linux</code></pre>
+
+                <p>For a smaller download, use a shallow clone with recent history only:</p>
+
+                <pre><code>git clone --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git</code></pre>
+
+                <h2>Configuration</h2>
+
+                <p>The kernel has thousands of configuration options. For development purposes, start with your current
+                    running kernel configuration:</p>
+
+                <pre><code>cp /boot/config-$(uname -r) .config
+make olddefconfig</code></pre>
+
+                <p>The <code>olddefconfig</code> target applies defaults for any new options not in your existing
+                    config.</p>
+
+                <h2>Building</h2>
+
+                <p>Compile the kernel using all available cores:</p>
+
+                <pre><code>make -j$(nproc)</code></pre>
+
+                <p>This takes 15-60 minutes depending on hardware. A successful build produces <code>vmlinux</code> and
+                    <code>arch/x86/boot/bzImage</code> (on x86 systems).
+                </p>
+
+                <h2>Writing a Simple Module</h2>
+
+                <p>Kernel modules are the entry point for most new contributors. They load and unload without rebooting,
+                    making iteration faster.</p>
+
+                <p>Create a file named <code>hello.c</code>:</p>
+
+                <pre><code>#include &lt;linux/init.h&gt;
+#include &lt;linux/module.h&gt;
+#include &lt;linux/kernel.h&gt;
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Your Name");
+MODULE_DESCRIPTION("A minimal kernel module");
+
+static int __init hello_init(void)
+{
+    printk(KERN_INFO "Hello from the kernel\n");
+    return 0;
+}
+
+static void __exit hello_exit(void)
+{
+    printk(KERN_INFO "Goodbye from the kernel\n");
+}
+
+module_init(hello_init);
+module_exit(hello_exit);</code></pre>
+
+                <p>Create a Makefile in the same directory:</p>
+
+                <pre><code>obj-m += hello.o
+
+all:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+
+clean:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean</code></pre>
+
+                <p>Build and test the module:</p>
+
+                <pre><code>make
+sudo insmod hello.ko
+dmesg | tail
+sudo rmmod hello</code></pre>
+
+                <p>You should see your messages in the kernel log output.</p>
+
+                <h2>Next Steps</h2>
+
+                <p>With a working development setup, you can explore the kernel source, read documentation in the
+                    <code>Documentation/</code> directory, and look for simple bugs to fix. The kernel newbies mailing
+                    list and staging drivers are good places to find tasks suitable for new contributors.
+                </p>
+
+                <p>Start small, test thoroughly, and read the existing code before making changes.</p>
+            </div>
+        </article>
+    </main>
+
+    <footer>
+    </footer>
+</body>
+
+</html>
