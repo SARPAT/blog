@@ -26,6 +26,7 @@ POST_TEMPLATE = '''<!DOCTYPE html>
         <a href="../about.html">About</a>
         <a href="https://github.com/SARPAT">GitHub</a>
         <a href="https://x.com/SARAPATEL21">Twitter</a>
+        <a href="../saranshpatel_cv.pdf" target="_blank">CV</a>
     </nav>
 
     <main>
