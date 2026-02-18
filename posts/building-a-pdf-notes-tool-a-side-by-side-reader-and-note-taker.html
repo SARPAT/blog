@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How I built a lightweight desktop app that puts a PDF viewer and rich-text editor side by side, with lazy loading, screenshot capture, and auto-saving notes tied to each document.">
+    <title>Building a PDF Notes Tool: A Side-by-Side Reader and Note-Taker - Technical Notes</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="../copy.js" defer></script>
+</head>
+<body>
+    <nav>
+        <a href="../index.html" class="site-title">Technical Notes</a>
+        <a href="../index.html">Articles</a>
+        <a href="../about.html">About</a>
+        <a href="https://github.com/SARPAT">GitHub</a>
+        <a href="https://x.com/SARAPATEL21">Twitter</a>
+        <a href="../saranshpatel_cv.pdf" target="_blank">CV</a>
+    </nav>
+
+    <main>
+        <a href="../index.html" class="back-link">Back to articles</a>
+
+        <article>
+            <header class="article-header">
+                <h1>Building a PDF Notes Tool: A Side-by-Side Reader and Note-Taker</h1>
+                <p class="article-meta">February 18, 2026</p>
+            </header>
+
+            <div class="article-content">
+<p>When studying technical documents — research papers, textbooks, presentations — I found myself constantly switching between a PDF reader and a text editor. Copy a passage, switch windows, paste it, switch back, lose my place. The workflow was broken.</p>
+
+                <p>So I built <strong>PDF Notes Tool</strong>: a lightweight desktop app that puts a PDF viewer and a rich-text editor side by side, with notes automatically linked to each document.</p>
+
+                <h2>The Problem</h2>
+
+                <p>Most PDF readers treat annotation as an afterthought. Sticky notes are tiny. Highlighting is limited. And if you want to capture a diagram or code snippet as an image alongside your written notes, you're juggling screenshot tools, image editors, and word processors.</p>
+
+                <p>I wanted something simple:</p>
+
+                <ul>
+<li>Open a PDF on the left, write notes on the right</li>
+<li>Copy text or capture screenshots directly from the PDF into the notes</li>
+<li>Have everything save automatically, tied to that specific document</li>
+<li>No cloud accounts, no subscriptions, no bloat</li>
+</ul>
+
+                <h2>The Stack</h2>
+
+                <p>The tool is built with three dependencies:</p>
+
+                <ul>
+<li><strong>Python 3.12</strong> — the runtime</li>
+<li><strong>PyQt6</strong> — cross-platform GUI framework</li>
+<li><strong>PyMuPDF (fitz)</strong> — fast PDF rendering and text extraction</li>
+</ul>
+
+                <p>That's it. No Electron, no web server, no database engine. Notes are stored as plain JSON files on disk.</p>
+
+                <h2>How It Works</h2>
+
+                <h3>Split-View Layout</h3>
+
+                <p>The main window uses a <code>QSplitter</code> to divide the screen: 60% for the PDF viewer, 40% for the notes editor. You can drag the divider to adjust the ratio.</p>
+
+                <h3>Continuous Scroll with Lazy Loading</h3>
+
+                <p>Early versions rendered one page at a time. That felt limiting for longer documents, so I switched to continuous vertical scrolling — all pages stacked in a scrollable container.</p>
+
+                <p>The catch: rendering every page of a 500-page PDF upfront would consume massive amounts of memory. The solution is lazy loading. When a PDF is opened, every page gets a lightweight gray placeholder widget with just the page number. As you scroll, only the pages currently in the viewport (plus a one-page buffer above and below) are rendered at full resolution. Pages that scroll out of range are unloaded back to placeholders.</p>
+
+                <p>This means a 1000-page PDF uses roughly the same memory as a 10-page one — only 3-5 pages are rendered at any given time.</p>
+
+                <h3>Text Selection and Extraction</h3>
+
+                <p>Click and drag on any page to create a selection rectangle. Under the hood, the screen coordinates are converted back to PDF coordinates (accounting for zoom level), and PyMuPDF's <code>get_text()</code> extracts the text within that region.</p>
+
+                <p>Press <code>C</code> to copy the selected text into an internal clipboard. Switch focus to the notes panel and press <code>P</code> to paste it in.</p>
+
+                <h3>Screenshot Capture with Interactive Placement</h3>
+
+                <p>Sometimes a diagram or equation is worth more than extracted text. Select a region and press <code>S</code> to capture it as a high-resolution image.</p>
+
+                <p>When you paste it into the notes (<code>P</code>), instead of dropping it inline immediately, an interactive overlay appears. You can:</p>
+
+                <ul>
+<li><strong>Drag</strong> the image to position it</li>
+<li><strong>Drag corner handles</strong> to resize it</li>
+<li><strong>Click outside</strong> the overlay to confirm placement</li>
+<li>Press <strong>Escape</strong> to cancel</li>
+</ul>
+
+                <p>This gives you control over how the image fits into your notes before committing.</p>
+
+                <h3>Zoom</h3>
+
+                <p>Three ways to zoom the PDF (25% to 300%):</p>
+
+                <ul>
+<li>Toolbar <code>+</code> / <code>-</code> buttons</li>
+<li><code>Ctrl+Scroll</code> with the mouse wheel</li>
+<li><strong>Two-finger pinch</strong> on a trackpad</li>
+</ul>
+
+                <p>The pinch-to-zoom implementation handles both Qt gesture events and native gesture events (for Linux/macOS trackpad support). During a pinch, re-renders are throttled to 150ms intervals to keep the UI responsive, with a final full-quality render when the gesture ends.</p>
+
+                <h3>Rich-Text Notes</h3>
+
+                <p>The notes editor supports:</p>
+
+                <ul>
+<li><strong>Bold</strong>, <em>italic</em>, underline formatting</li>
+<li>Adjustable font size (8-72pt)</li>
+<li>Custom text colors</li>
+<li>Bullet and numbered lists</li>
+<li>Inline images (from screenshot captures)</li>
+</ul>
+
+                <p>Notes are stored as HTML, so all formatting is preserved across sessions.</p>
+
+                <h3>Auto-Save and Storage</h3>
+
+                <p>Notes auto-save every 30 seconds. You can also save manually with <code>Ctrl+S</code>. The window title shows an asterisk (<code>*</code>) when there are unsaved changes, and closing the app with unsaved work triggers a save/discard/cancel prompt.</p>
+
+                <p>Each PDF's notes are stored in a JSON file:</p>
+
+                <pre><code>{
+
+                  "pdf_path": "/path/to/document.pdf",
+
+                  "pdf_filename": "document.pdf",
+
+                  "content": "&lt;html&gt;...notes as rich text...&lt;/html&gt;",
+
+                  "last_modified": "2026-02-02T12:22:44.259723"
+
+                }</code></pre>
+
+                <p>The filename uses a SHA-256 hash of the PDF's absolute path, so two PDFs named <code>notes.pdf</code> in different directories get separate note files without collision.</p>
+
+                <h2>Architecture</h2>
+
+                <pre><code>src/
+
+                ├── main_window.py               # Orchestrates the split-view, menus, autosave
+
+                ├── pdf_viewer.py                # PDF rendering, scrolling, zoom, text selection
+
+                │   ├── PDFPageWidget            # Single page: render, select, extract
+
+                │   ├── PDFPageContainer         # Vertical layout of all pages
+
+                │   └── PDFViewer                # Scroll area, toolbar, gesture handling
+
+                ├── notes_editor.py              # Rich-text editor with formatting toolbar
+
+                ├── image_placement_overlay.py   # Drag/resize overlay for image insertion
+
+                └── storage.py                   # JSON-based persistence</code></pre>
+
+                <p>Each component is self-contained. The <code>MainWindow</code> wires them together through Qt signals — the PDF viewer emits <code>text_copied</code> or <code>screenshot_captured</code>, and the main window routes these to the notes editor. No component directly references another.</p>
+
+                <h2>Keyboard Shortcuts</h2>
+
+                <ul>
+<li><code>C</code> — Copy selected PDF text</li>
+<li><code>S</code> — Screenshot selected region</li>
+<li><code>P</code> — Paste text/screenshot to notes</li>
+<li><code>Ctrl+O</code> — Open PDF</li>
+<li><code>Ctrl+S</code> — Save notes</li>
+<li><code>Ctrl+B/I/U</code> — Bold / Italic / Underline</li>
+<li><code>Left/Right</code> — Previous / Next page</li>
+<li><code>Ctrl+Scroll</code> — Zoom in/out</li>
+<li><code>Pinch</code> — Zoom in/out (trackpad)</li>
+<li><code>Esc</code> — Cancel image placement</li>
+</ul>
+
+                <h2>What I Learned</h2>
+
+                <p><strong>Lazy loading matters.</strong> The jump from rendering all pages to rendering only visible ones was the single biggest improvement. It changed the app from "struggles with 50-page PDFs" to "handles 1000+ pages without issue."</p>
+
+                <p><strong>PyMuPDF's buffer lifetime is a trap.</strong> When converting a PyMuPDF pixmap to a <code>QImage</code>, the pixel data buffer can be garbage collected before Qt is done with it. The fix is a single <code>.copy()</code> call — but without it, you get subtle memory corruption and random crashes that are painful to debug.</p>
+
+                <p><strong>Pinch-to-zoom on Linux needs two code paths.</strong> Qt's <code>QGestureEvent</code> handles some trackpads, but many Linux systems send <code>QNativeGestureEvent</code> instead. Supporting both covers the majority of hardware.</p>
+
+                <p><strong>JSON is a fine database for single-user desktop apps.</strong> No migrations, no ORM, no connection pooling. Just <code>json.dump()</code> and <code>json.load()</code>. For a tool like this, it's the right level of complexity.</p>
+
+                <h2>Running It</h2>
+
+                <pre><code>git clone &lt;repo-url&gt;
+
+                cd notestool_project
+
+                python -m venv venv
+
+                source venv/bin/activate
+
+                pip install -r requirements.txt
+
+                python main.py</code></pre>
+
+                <p>Requires Python 3.10+ on Linux, macOS, or Windows.</p>
+
+                <p><em>Built with Python, PyQt6, and PyMuPDF. Licensed under MIT.</em></p>
+            </div>
+        </article>
+    </main>
+
+    <footer>
+    </footer>
+</body>
+</html>

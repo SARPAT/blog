@@ -82,10 +82,18 @@ def markdown_to_html(md_text):
     lines = html.split('\n')
     result = []
     in_list = False
+    in_pre = False
     list_items = []
-    
+
     for line in lines:
         stripped = line.strip()
+        if '<pre>' in stripped:
+            in_pre = True
+        if in_pre:
+            result.append(line)
+            if '</pre>' in stripped:
+                in_pre = False
+            continue
         if stripped.startswith('- '):
             if not in_list:
                 in_list = True
@@ -95,11 +103,12 @@ def markdown_to_html(md_text):
                 result.append('<ul>\n' + '\n'.join(list_items) + '\n</ul>')
                 list_items = []
                 in_list = False
-            if stripped and not stripped.startswith('<'):
-                result.append(f'<p>{stripped}</p>')
-            elif stripped:
+            block_tags = ('<h2', '<h3', '<pre', '<ul', '</ul', '<img')
+            if stripped and any(stripped.startswith(tag) for tag in block_tags):
                 result.append(stripped)
-    
+            elif stripped:
+                result.append(f'<p>{stripped}</p>')
+
     if in_list:
         result.append('<ul>\n' + '\n'.join(list_items) + '\n</ul>')
     
