@@ -20,14 +20,7 @@ POST_TEMPLATE = '''<!DOCTYPE html>
     <script src="../copy.js" defer></script>
 </head>
 <body>
-    <nav>
-        <a href="../index.html" class="site-title">Technical Notes</a>
-        <a href="../index.html">Articles</a>
-        <a href="../about.html">About</a>
-        <a href="https://github.com/SARPAT">GitHub</a>
-        <a href="https://x.com/SARAPATEL21">Twitter</a>
-        <a href="../saranshpatel_cv.pdf" target="_blank">CV</a>
-    </nav>
+    <nav></nav>
 
     <main>
         <a href="../index.html" class="back-link">Back to articles</a>
