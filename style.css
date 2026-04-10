@@ -79,6 +79,7 @@ a:hover {
 nav {
     display: flex;
     align-items: center;
+    justify-content: center;
     background: var(--color-nav-bg);
     height: var(--nav-height);
     padding: 0 2rem;
@@ -100,7 +101,6 @@ nav a:hover {
     font-size: 1.1rem;
     font-weight: 700;
     color: var(--color-nav-title);
-    margin-right: auto;
 }
 
 .site-title:hover {
